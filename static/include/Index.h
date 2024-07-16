@@ -74,7 +74,6 @@ private:
   double debug_time2 = 0.0;
   bool puredegree;
   int testsize;
-
   std::vector<unsigned> level;
   std::vector<unsigned> level2;
   std::vector<unsigned> level_c;
@@ -82,29 +81,20 @@ private:
   std::vector<std::vector<unsigned> > levelNodes; //classify nodes based on the levels.
   std::vector<double> inscores;
   std::vector<double> outscores;
-  // std::vector<int> approximated_scores;
   std::vector<unsigned> calculated_order;
   std::priority_queue<queue_unit> pq_node_score;
   std::priority_queue<queue_unit> pq_node_score_leaves;
   std::priority_queue<queue_unit> pq_node_score_heavy;
-
-  // std::priority_queue<queue_unit, std::vector<queue_unit>, cmp> pq_node_score;
-
   std::vector<std::vector<unsigned> > IN;
   std::vector<std::vector<unsigned> > OUT; 
-
   std::vector<std::vector<unsigned> > CIN;
   std::vector<std::vector<unsigned> > COUT;
   std::vector<unsigned> c_roots; 
-  
   std::vector<int> visited;
   std::vector<int> redundant;
   std::vector<unsigned> * in_degree; 
   std::vector<unsigned> masked;
   std::vector<unsigned> maskedindex;
-
-  //compression
-  // std::unordered_map<std::pair<std::vector<unsigned>, std::vector<unsigned>>, std::vector<unsigned>, VectorPairHash, VectorPairEqual> vectorGroups;
   std::unordered_map<std::pair<std::vector<unsigned>, std::vector<unsigned>>, std::unordered_set<unsigned>, VectorPairHash, VectorPairEqual> vectorGroups;
   std::unordered_map<unsigned, std::unordered_set<unsigned>> ref_clusters;
   std::pair<std::vector<unsigned>, std::vector<unsigned>> vectors;//key
@@ -113,40 +103,26 @@ private:
   std::vector<std::vector<unsigned> > cnb2;
   std::vector<unsigned> reduction_ref;
   std::vector<unsigned> origianl_ref;
-
-  // std::vector<unsigned> querypointer;
-
   std::vector<unsigned> cin_degree;
   std::vector<unsigned> cout_degree;
-  
-  //delete
   std::vector<unsigned> delete_order;//insert in the reverse order.
-
-  //query
   std::vector<unsigned> queriesbuildin;
-
-  //ranks
   std::queue<unsigned> ranks;
 
 
 public:
-  /// constructor
   Index(Graph *g, unsigned rt);
 
-  /// destructor
   ~Index();
 
-  ///public
   unsigned PI();
   unsigned PI2();
-
   void out_score();
   void in_score();
   void calculate_order();
   void calculate_order_c();
   unsigned levelFilter(unsigned node);
   unsigned levelFilter_root(unsigned node);
-  // unsigned levelFilter2(unsigned node);
   void _2hop();
   void _2hop_c();
   void output(std::string indexfile);
@@ -159,37 +135,27 @@ public:
   bool mergeCheck(unsigned *u, unsigned *v);
   bool mergeCheck_log(unsigned & u, unsigned & v);
   bool mergeCheck_c(unsigned *u, unsigned *v);
-
   void outputGraph();
   void outputQuery(std::vector<std::pair<unsigned, unsigned> > * Queries);
-
   void masknodes(int masksize);
-  void nodes_delete();
-
+  void maintain();
   int compression();
   void compress_edges();
-
   void vector_delete(std::vector<unsigned> * vec, unsigned target);
+  void vector_insert(std::vector<unsigned> * vec, unsigned target);
   size_t hashvalue(std::pair<std::vector<unsigned>, std::vector<unsigned>> pair);
-
   void query(std::vector<std::pair<unsigned, unsigned> > *queries);
   void reachtest();
-
   void BFS(unsigned node);
   void BFStest();
-
-  // accessors
   inline Graph* get_graph() const {
     return g;
   }
-
-  //argmax/min
   template<class ForwardIterator>
   inline size_t argmin(ForwardIterator first, ForwardIterator last)
   {
       return std::distance(first, std::min_element(first, last));
   }
-
   template<class ForwardIterator>
   inline size_t argmax(ForwardIterator first, ForwardIterator last)
   {

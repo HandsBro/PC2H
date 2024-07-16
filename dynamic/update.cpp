@@ -3625,9 +3625,7 @@ struct Butterfly
 int main(int argc, char** argv)
 {
 	string GraphFileName, IndexFileStem, Updates;
-
 	GraphFileName = ""; IndexFileStem = ""; Updates="";
-
 	int style=0;
 	int opr = 0;
 
@@ -3643,7 +3641,6 @@ int main(int argc, char** argv)
 		{
 			opr = 0;
 			Updates = string(argv[i+1]);
-			// cout<< Updates << endl;
 		}
 	}
 
@@ -3678,7 +3675,7 @@ int main(int argc, char** argv)
 					tests.push_back(number);
 				}
 			}
-			file.close(); // 关闭文件
+			file.close();
 			cout << "Updating ... \n" << endl;
 			run.AddDelTest(tests.size(), &tests);
 		}

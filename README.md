@@ -10,15 +10,15 @@ C++ 14
 
 *Makefile* is provided. 
 
-Use command *make* to generate object files and executable file *2hop*.
+Use *make* to generate object files and executable file *2hop*.
 
-Use command *make clean* to delete all the intermediate files. 
+Use *make clean* to delete all the intermediate files. 
 
 ### Dynamic
 
-Use command *sh make* to generate executable file *upd*.
+Use *sh make* to generate executable file *upd*.
 
-Use command *sh clean* to clean.
+Use *sh clean* to clean.
 
 ## Execution
 
@@ -34,8 +34,6 @@ Run the following tests under *./static*,
 # G^c test
 ./2hop -g ./graph/soc_c.in -q ./query/soc_c.q
 ```
-
-Note that *soc_c.in* is the compressed graph from *soc.in* which cannot be compressed further. 
 
 ### Dynamic
 

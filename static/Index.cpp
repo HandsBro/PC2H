@@ -53,8 +53,7 @@ Index::Index(Graph* g_, unsigned rt){
 Index::~Index() {
 }
 //--------------------------------------------------------------------------------------------------
-unsigned Index::levelFilter(unsigned node){
-  // std::cout<<"Reaching node: "<<node<< "levels: " << level[node] <<std::endl; //debug process
+unsigned Index::levelFilter(unsigned node){ 
   if (level[node] != 0){
       return 0;
   }
@@ -356,6 +355,7 @@ void Index::_2hop(){
   // Timer t1;
   // int up_success_check_time=0, down_success_check_time=0;
   double temp_score;
+  int temp_sum;
 
   // std::ofstream ranking("./ranks/rank_citp_Gtest.txt");
   while (!pq_node_score.empty()){
@@ -364,15 +364,21 @@ void Index::_2hop(){
     while(1){
       int top_node = pq_node_score.top().node;
       double top_score = pq_node_score.top().score;
+      int top_sum = pq_node_score.top().sum;
 
-      if(!puredegree) temp_score = (inscores[top_node]*outscores[top_node])/(inscores[top_node]+outscores[top_node]+1);
+      if(!puredegree) 
+      {
+        temp_score = (inscores[top_node]*outscores[top_node])/(inscores[top_node]+outscores[top_node]+1);
+        temp_sum = inscores[top_node]+outscores[top_node];
+      }
       // if(!puredegree) temp_score = (inscores[top_node]*outscores[top_node]);
       else {
         // if(top_node==1) temp_score = 1e20;
         temp_score = (double)((*indegree)[top_node]) * (double)((*degree)[top_node]) / (double)((*indegree)[top_node] + (*degree)[top_node] + 1) ;//new
+        temp_sum = (*indegree)[top_node] + (*degree)[top_node];
       }
 
-      if (temp_score == top_score){
+      if (temp_score == top_score && temp_sum == top_sum){
         currentNode = top_node;
         pq_node_score.pop();
         break;
@@ -384,7 +390,7 @@ void Index::_2hop(){
         pq_node_score.push(temp_struct);
       } 
       else{
-        queue_unit temp_struct(top_node, temp_score, (*degree)[top_node]+(*indegree)[top_node]);
+        queue_unit temp_struct(top_node, temp_score, temp_sum);
         pq_node_score.push(temp_struct);
       } 
     }
@@ -591,10 +597,10 @@ void Index::query(std::vector<std::pair<unsigned, unsigned> > *queries){
   testsize=1'000'000;//100000
   queriesbuildin.resize(2*testsize);
   for(int i=0; i<testsize; ++i){
-    queriesbuildin[i] = origianl_ref[reduction_ref[(*queries)[i].first]];
-    queriesbuildin[i+testsize] = origianl_ref[reduction_ref[(*queries)[i].second]]; 
-    // queriesbuildin[i] = (*queries)[i].first;
-    // queriesbuildin[i+testsize] = (*queries)[i].second; 
+    // queriesbuildin[i] = origianl_ref[reduction_ref[(*queries)[i].first]];
+    // queriesbuildin[i+testsize] = origianl_ref[reduction_ref[(*queries)[i].second]]; 
+    queriesbuildin[i] = (*queries)[i].first;
+    queriesbuildin[i+testsize] = (*queries)[i].second; 
   }
 }
 
@@ -765,29 +771,16 @@ bool Index::mergeCheck_c(unsigned *u, unsigned *v){
 void Index::storage(){
   float totalsize = labelsize * 4;
   // float totalsize_c = labelsize_c * 4;
-  int outs = 0;
-  int ins = 0;
-  int outs_c = 0;
-  int ins_c = 0;
   unsigned MAXOUT=0, MAXIN=0;//, MAXIN_id;
   for(unsigned i = 0; i<n_; ++i){
-    ins = ins + std::max(0,(int)IN[i].size()-1);
-    outs = outs + std::max(0,(int)OUT[i].size()-1);
     if(IN[i].size()>MAXIN) {
-      // MAXIN_id = i;
       MAXIN = IN[i].size();
     }
     if(OUT[i].size()>MAXOUT) MAXOUT = OUT[i].size();
 
   }
-  for(unsigned i = 0; i<CIN.size(); ++i){
-    ins_c = ins_c + CIN[i].size();
-    outs_c = outs_c + COUT[i].size();
-  }
 
-  std::cout<< "index size (byte): " << totalsize << std::endl;
-  std::cout<< "ins: " << ins << std::endl;
-  std::cout<< "outs: " << outs << std::endl;
+  std::cout<< "Index size (byte): " << totalsize << std::endl;
   std::cout << "Total Reachable: " << reachable <<std::endl;
 }
 
@@ -921,15 +914,15 @@ void Index::compress_edges(){
   unsigned cedges2 = 0;
   int new_size = vectorGroups.size();
   // global
-  cpd = std::vector<std::vector<unsigned> >(new_size);//no need to copy when constructing.
+  // cpd = std::vector<std::vector<unsigned> >(new_size);//no need to copy when constructing.
   cnb = std::vector<std::vector<unsigned> >(new_size);
   // cnb2 = std::vector<std::vector<unsigned> >(n_);
 
-  cin_degree = std::vector<unsigned>(new_size);
-  cout_degree = std::vector<unsigned>(new_size);
+  // cin_degree = std::vector<unsigned>(new_size);
+  // cout_degree = std::vector<unsigned>(new_size);
 
-  CIN = std::vector<std::vector<unsigned> >(new_size);
-  COUT = std::vector<std::vector<unsigned> >(new_size);
+  // CIN = std::vector<std::vector<unsigned> >(new_size);
+  // COUT = std::vector<std::vector<unsigned> >(new_size);
 
   //! randomized id.
   // std::vector<unsigned> shufflebase(new_size);
@@ -940,16 +933,15 @@ void Index::compress_edges(){
   // unsigned test_;
   //namespace: cluster order;
   for (auto it = vectorGroups.begin(); it != vectorGroups.end(); ++it) {
-    unsigned size_cnt=0; 
+    // unsigned size_cnt=0; 
     // int newid = shufflebase[c];
     int newid = c;
       for (int num : it->second) {
-        size_cnt++;
-        if(size_cnt<it->second.size()) {
-          // visited[num]=-1;
-          redundant[num]=1;
-        }
-        // if(num==1824817) std::cout<< "start point is: " << shufflebase[c] << std::endl;
+        // size_cnt++;
+        // if(size_cnt<it->second.size()) {
+        //   // visited[num]=-1;
+        //   redundant[num]=1;
+        // }
         reduction_ref[num] = newid;
         origianl_ref[newid] = num;
         ref_clusters[newid].insert(num);
@@ -1272,8 +1264,6 @@ void Index::_2hop_c(){
   reachable=0;
 }
 
-//* insertion & deletion of nodes (follow 2-hop)
-//* randomly select nodes to operate.
 void Index::masknodes(int masksize){
   // std::vector<unsigned> * nb;
   // std::vector<unsigned> * pd;
@@ -1328,20 +1318,19 @@ void Index::masknodes(int masksize){
   // }
 }
 
-//* delete by nodes
 void Index::vector_delete(std::vector<unsigned> * vec, unsigned target){
   std::vector<unsigned>::iterator position = std::lower_bound(vec->begin(), vec->end(), target);
   if(*position!= target) std::cout << *position << ";" << target << "Binary Search Error...\n";
   else vec->erase(position);
 }
 
-// void Index::vector_insert(std::vector<unsigned> * vec, unsigned target){
-//   std::vector<unsigned>::iterator position = std::lower_bound(vec->begin(), vec->end(), target);
-//   if(*position!= target) std::cout << *position << ";" << target << "Binary Search Error...\n";
-//   else vec->erase(position);
-// }
+void Index::vector_insert(std::vector<unsigned> * vec, unsigned target){
+  std::vector<unsigned>::iterator position = std::lower_bound(vec->begin(), vec->end(), target);
+  if(*position!= target) std::cout << *position << ";" << target << "Binary Search Error...\n";
+  else vec->erase(position);
+}
 
-void Index::nodes_delete(){
+void Index::maintain(){
   // std::ofstream outfile("./updates/test.up");
 
   // if (!outfile.is_open()) {
@@ -1407,188 +1396,6 @@ void Index::nodes_delete(){
   // std::cout<< "Merge/Split " << mergetime << " times " << std::endl;
 
 }
-
-
-// void Index::nodes_delete_v1(){
-//   int save = 0;
-//   // int mergetime = 0;
-//   // std::vector<unsigned> nodes_to_delete;
-//   std::vector<unsigned> * nb;
-//   std::vector<unsigned> * pd;
-  
-//   std::vector<unsigned> * nb_update;
-//   std::vector<unsigned> * pd_update;
-//   // int i=0;
-//   std::unordered_set<unsigned> cluster_used;
-
-//   for(auto node: delete_order){
-//     // std::cout << i++ << std::endl;
-//     nb = g->get_neighbors(node);
-//     pd = g->get_predecessors(node);
-//     vectors = std::make_pair(*nb, *pd);
-//     // if(ref_clusters[reduction_ref[node]].size() > 1){
-//     std::unordered_set<unsigned> * hashset = &(vectorGroups[vectors]);
-//     if(hashset->size() > 1){
-//       save++;
-//       // ref_clusters[reduction_ref[node]].erase(node);
-//       hashset->erase(node);
-//     }
-//     else{//==,the only one, delete corresp node.
-//       // ref_clusters[reduction_ref[node]].erase(node);
-//       hashset->erase(node);
-//       //delete reduction_ref[node] calling standard procedure.
-//     }
-//     //now update neighnours for merging
-//     //!pd
-//     cluster_used.clear();
-//     for(auto pdnode: *pd){
-      
-//       if(cluster_used.count(reduction_ref[pdnode])) {
-//         nb_update = g->get_neighbors(pdnode);
-//         vector_delete(nb_update, node);//delete node from parents' nb set
-//         continue;
-//       }
-//       else cluster_used.insert(reduction_ref[pdnode]);
-      
-//       pd_update = g->get_predecessors(pdnode);
-//       nb_update = g->get_neighbors(pdnode);
-//       // std::cout<< "before delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//       vectors = std::make_pair(*nb_update, *pd_update);
-//       std::unordered_set<unsigned> * temp= &(vectorGroups[vectors]);//find the original set
-          
-//       vector_delete(nb_update, node);//delete node from parents' nb set
-//       // std::cout << "after delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//       vectors = std::make_pair(*nb_update, *pd_update);//find the new set
-//       std::unordered_set<unsigned> * newpress = &(vectorGroups[vectors]);
-//       if(newpress->size()>0) {//if new set exist: merge
-//         unsigned newpointer = reduction_ref[*(newpress->begin())];
-//         for(auto it: (*temp)) reduction_ref[it] = newpointer;
-//       }
-//       newpress->insert(temp->begin(), temp->end());
-//       temp->clear();
-//     }
-//     //!nb
-//     // std::vector<unsigned> empty;
-//     for(auto nbnode: *nb){
-      
-//       if(cluster_used.count(reduction_ref[nbnode])) {
-//         pd_update = g->get_predecessors(nbnode);
-//         vector_delete(pd_update, node);//delete node from children' pd set
-//         continue;
-//       }
-//       else cluster_used.insert(reduction_ref[nbnode]);
-      
-//       pd_update = g->get_predecessors(nbnode);
-//       nb_update = g->get_neighbors(nbnode);
-//       // std::cout<< "before delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//       vectors = std::make_pair(*nb_update, *pd_update);
-//       std::unordered_set<unsigned> * temp= &(vectorGroups[vectors]);//find the original set
-          
-//       vector_delete(pd_update, node);//delete node from children' pd set
-//       // std::cout << "after delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//       vectors = std::make_pair(*nb_update, *pd_update);//find the new set
-//       std::unordered_set<unsigned> * newpress = &(vectorGroups[vectors]);
-//       if(newpress->size()>0) {//if new set exist: merge
-//         unsigned newpointer = reduction_ref[*(newpress->begin())];
-//         // std::cout << "new ref is: " << newpointer << ";size is: " << vectorGroups[std::make_pair(empty,empty)].size() << std::endl;
-//         for(auto it: (*temp)) reduction_ref[it] = newpointer;
-//       }
-//       newpress->insert(temp->begin(), temp->end());
-//       temp->clear();
-//     }
-//   }
-//   std::cout<< "Save " << save << " of total " << delete_order.size() << " nodes" << std::endl;
-//   // std::cout<< "In delete: merging " << mergetime << " times " << std::endl;
-
-// }
-
-// void Index::nodes_insert(){
-//   int save = 0;
-//   // int mergetime = 0;
-//   // std::vector<unsigned> nodes_to_delete;
-//   std::vector<unsigned> * nb;
-//   std::vector<unsigned> * pd;
-  
-//   std::vector<unsigned> * nb_update;
-//   std::vector<unsigned> * pd_update;
-//   // int i=0;
-//   std::unordered_set<unsigned> cluster_used;
-
-//   for(auto node: delete_order){
-//     // std::cout << i++ << std::endl;
-//     nb = g->get_neighbors(node);
-//     pd = g->get_predecessors(node);
-//     vectors = std::make_pair(*nb, *pd);
-//     // if(ref_clusters[reduction_ref[node]].size() > 1){
-//     std::unordered_set<unsigned> * hashset = &(vectorGroups[vectors]);
-//     if(hashset->size() > 1){
-//       save++;
-//       hashset->insert(node);
-//       //!pd
-//       cluster_used.clear();
-//       for(auto pdnode: *pd){
-//         if(cluster_used.count(reduction_ref[pdnode])) {
-//           nb_update = g->get_neighbors(pdnode);
-//           vector_insert(nb_update, node);
-//           continue;
-//         }
-//         else cluster_used.insert(reduction_ref[pdnode]);
-        
-//         pd_update = g->get_predecessors(pdnode);
-//         nb_update = g->get_neighbors(pdnode);
-//         // std::cout<< "before delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//         vectors = std::make_pair(*nb_update, *pd_update);
-//         std::unordered_set<unsigned> * temp= &(vectorGroups[vectors]);//find the original set
-            
-//         vector_insert(nb_update, node);//delete node from parents' nb set
-//         // std::cout << "after delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//         vectors = std::make_pair(*nb_update, *pd_update);//find the new set
-//         std::unordered_set<unsigned> * newpress = &(vectorGroups[vectors]);
-
-//         newpress->insert(temp->begin(), temp->end());
-//         temp->clear();
-//       }
-//       //!nb
-//       // std::vector<unsigned> empty;
-//       for(auto nbnode: *nb){
-        
-//         if(cluster_used.count(reduction_ref[nbnode])) {
-//           pd_update = g->get_predecessors(nbnode);
-//           vector_insert(pd_update, node);//delete node from children' pd set
-//           continue;
-//         }
-//         else cluster_used.insert(reduction_ref[nbnode]);
-        
-//         pd_update = g->get_predecessors(nbnode);
-//         nb_update = g->get_neighbors(nbnode);
-//         // std::cout<< "before delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//         vectors = std::make_pair(*nb_update, *pd_update);
-//         std::unordered_set<unsigned> * temp= &(vectorGroups[vectors]);//find the original set
-            
-//         vector_delete(pd_update, node);//delete node from children' pd set
-//         // std::cout << "after delete " << pd_update->size() << "; " << nb_update->size() << std::endl;
-//         vectors = std::make_pair(*nb_update, *pd_update);//find the new set
-//         std::unordered_set<unsigned> * newpress = &(vectorGroups[vectors]);
-
-//         newpress->insert(temp->begin(), temp->end());
-//         temp->clear();
-//       }
-
-
-//     }
-//     else{//==,the only one, delete corresp node.
-//       hashset->insert(node);
-//       //1. make new ref nodes partially
-//       //2. 
-//     }
-    
-
-//   }
-//   // std::cout<< "In Ins: save " << save << " of total " << delete_order.size() << " deletes" << std::endl;
-//   // std::cout<< "In delete: merging " << mergetime << " times " << std::endl;
-
-// }
-
 
 size_t Index::hashvalue(std::pair<std::vector<unsigned>, std::vector<unsigned>> pair) {
     std::size_t seed = 0;//can be speed up by cuda.

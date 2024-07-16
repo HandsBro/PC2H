@@ -13,7 +13,6 @@
 #include <chrono>
 // #include <unistd.h>
 
-//read in queries
 void read_queries(const std::string& query_file,
     std::vector<std::pair<unsigned, unsigned> > *queries) {
   std::ifstream qf(query_file.c_str(), std::ios::in);
@@ -35,6 +34,7 @@ void read_queries(const std::string& query_file,
 }
 
 int main(int argc, char *argv[]) {
+
   std::string graph_file = "", query_file = "", IndexFileStem = "";
   for (int i = 0; i < argc; ++i) {
     std::string arg = argv[i];
@@ -76,10 +76,10 @@ int main(int argc, char *argv[]) {
   std::cout << "Construction: (" << constructiontime << " ms)" << std::endl;
   std::cout << "Compressed time: (" << compress_time << " ms)" << std::endl;
   id.storage();
-  std::cout<<"Making...\n";
+  std::cout<<"Masking...\n";
   id.masknodes(10000);
   Timer t2; t2.start();
-  id.nodes_delete();
+  id.maintain();
   double Maintain = t2.stop();
   std::cout << "Maintain time: (" << Maintain << " ms)" << std::endl;
 
