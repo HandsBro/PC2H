@@ -1331,11 +1331,6 @@ void Index::vector_insert(std::vector<unsigned> * vec, unsigned target){
 }
 
 void Index::maintain(){
-  // std::ofstream outfile("./updates/test.up");
-
-  // if (!outfile.is_open()) {
-  //     std::cerr << "Failed to open file for writing." << std::endl;
-  // }
   //lazy update in the end: recompress and record the first ref.
   int save = 0;
   // int mergetime = 0;
@@ -1360,19 +1355,18 @@ void Index::maintain(){
     else{//==,the only one, delete corresp node.
       ref_clusters[reduction_ref[node]].erase(node);
       // outfile << reduction_ref[node] << std::endl;
-      //delete reduction_ref[node] calling standard procedure.
     }
     //now update neighnours for merging
  
     for(auto pdnode: *pd){
       visited[pdnode]=1;
       nb_update = g->get_neighbors(pdnode);
-      vector_delete(nb_update, node);//delete node from parents' nb set
+      vector_delete(nb_update, node);
     }
     for(auto nbnode: *nb){
       visited[nbnode]=1;
       pd_update = g->get_predecessors(nbnode);
-      vector_delete(pd_update, node);//delete node from children' pd set
+      vector_delete(pd_update, node);
     }
   }
   //lazy update
@@ -1393,17 +1387,4 @@ void Index::maintain(){
     }
   }
   std::cout<< "Save " << save << " of total " << delete_order.size() << " nodes" << std::endl;
-  // std::cout<< "Merge/Split " << mergetime << " times " << std::endl;
-
-}
-
-size_t Index::hashvalue(std::pair<std::vector<unsigned>, std::vector<unsigned>> pair) {
-    std::size_t seed = 0;//can be speed up by cuda.
-    for (const auto& v : pair.first) {
-        seed ^= std::hash<int>{}(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
-    }
-    for (const auto& v : pair.second) {
-        seed ^= std::hash<int>{}(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
-    }
-    return seed;
 }
