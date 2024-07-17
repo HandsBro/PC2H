@@ -1028,9 +1028,7 @@ void Index::outputGraph(){
   //     //   continue;
   //     // }
   //     for (size_t j = 0; j < cnb[i].size(); ++j) {
-  //         // 输出当前元素
   //         outfile << cnb[i][j];
-  //         // 如果不是最后一个元素，输出空格
   //         if (j < cnb[i].size() - 1) {
   //             outfile << " ";
   //         }
@@ -1056,7 +1054,6 @@ void Index::outputGraph(){
   //       for (size_t j = 0; j < nb->size(); ++j) {
   //           if(redundant[(*nb)[j]]==1) continue;
   //           outfile << (*nb)[j];
-  //           // 如果不是最后一个元素，输出空格
   //           if (j < nb->size() - 1) {
   //               outfile << " ";
   //           }
