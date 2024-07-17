@@ -1064,32 +1064,6 @@ void Index::outputGraph(){
   //       outfile << std::endl;
   //     }
   // }
-
-  //original DAG
-  // outfile << n_ << " " << "1111";
-  // outfile << std::endl;
-  // std::vector<unsigned> * nb;
-
-  // for (size_t i = 0; i < n_; ++i) {
-  //     // 输出行号
-  //     // outfile << i << ": ";//no need for PLL
-  //     // 遍历当前行的所有元素
-  //     nb = g->get_neighbors(i);
-  //     for (size_t j = 0; j < nb->size(); ++j) {
-  //         // 输出当前元素
-  //         outfile << (*nb)[j];
-  //         // 如果不是最后一个元素，输出空格
-  //         if (j < nb->size() - 1) {
-  //             outfile << " ";
-  //         }
-  //     }
-  //     // 每输出一行后换行
-  //     // if(nb->size()!=0) outfile << " ";
-  //     // outfile << "-1";
-  //     outfile << std::endl;
-  // }
-
-
   outfile.close();
 }
 
