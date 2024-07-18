@@ -1309,8 +1309,8 @@ void Index::maintain(){
   std::vector<unsigned> * nb;
   std::vector<unsigned> * pd;
   
-  std::vector<unsigned> * nb_update;
-  std::vector<unsigned> * pd_update;
+  // std::vector<unsigned> * nb_update;
+  // std::vector<unsigned> * pd_update;
   // int i=0;
   std::unordered_set<unsigned> delete_nodes;
   for(auto node: delete_order){
@@ -1331,13 +1331,13 @@ void Index::maintain(){
  
     for(auto pdnode: *pd){
       visited[pdnode]=1;
-      nb_update = g->get_neighbors(pdnode);
-      vector_delete(nb_update, node);
+      // nb_update = g->get_neighbors(pdnode);
+      // vector_delete(nb_update, node);
     }
     for(auto nbnode: *nb){
       visited[nbnode]=1;
-      pd_update = g->get_predecessors(nbnode);
-      vector_delete(pd_update, node);
+      // pd_update = g->get_predecessors(nbnode);
+      // vector_delete(pd_update, node);
     }
   }
   //lazy update
