@@ -1,4 +1,4 @@
-# SIGMOD25 PC2H
+# PC2H
 
 ## Dependences
 

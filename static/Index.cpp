@@ -407,11 +407,11 @@ void Index::_2hop(){
 
     ++i;
     if(visited[currentNode]==-1) continue;
-    if ((*indegree)[currentNode] + (*degree)[currentNode] == 0) {
-      // IN[currentNode].emplace_back(i);
-      // OUT[currentNode].emplace_back(i);
-      break;
-    } 
+    // if ((*indegree)[currentNode] + (*degree)[currentNode] == 0) {
+    //   // IN[currentNode].emplace_back(i);
+    //   // OUT[currentNode].emplace_back(i);
+    //   break;
+    // } 
     // std::cout<< i << std::endl;
 
     q.push(currentNode);
